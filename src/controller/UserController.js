@@ -81,3 +81,35 @@ exports.registerUser = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.userLogin = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return res
+      .status(400)
+      .json({ message: "Harap lengkapi email dan password" });
+
+  try {
+    const [exist] = await db.query("select * from users where email = ?", [
+      email,
+    ]);
+    if (exist.length === 0)
+      return res.status(404).json({ message: "email tidak ditemukan" });
+
+    const user = exist[0];
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) return res.status(401).json({ message: "password salah" });
+
+    res.status(200).json({
+      message: "Login berhasil",
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
