@@ -1,4 +1,5 @@
 const db = require("../db");
+const bcrypt = require("bcrypt");
 
 exports.getUser = async (req, res, next) => {
   try {
@@ -47,6 +48,35 @@ exports.updateUser = async (req, res, next) => {
     if (result.affectedRows === 0)
       return res.status(404).json({ message: "Id tidak ditemukan" });
     res.json({ message: "Nama berhasil diubah" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.registerUser = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return res
+      .status(404)
+      .json({ message: "email atau password tidak boleh kosong" });
+
+  try {
+    const [exist] = await db.query("select id from users where email = ?", [
+      email,
+    ]);
+    if (exist.length > 0)
+      return res
+        .status(409)
+        .json({ message: "email sudah digunakan, silahkan login" });
+
+    const hashedpassword = await bcrypt.hash(password, 10);
+
+    await db.query("insert into users (email,password) values (?,?)", [
+      email,
+      hashedpassword,
+    ]);
+    res.status(201).json({ message: "Registrasi berhasil" });
   } catch (err) {
     next(err);
   }
