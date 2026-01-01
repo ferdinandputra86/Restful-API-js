@@ -7,7 +7,7 @@ router.get("/", async (req, res) => {
     const [users] = await db.query("select * from users");
     res.json(users);
   } catch (err) {
-    res.status(500).json(err.message);
+    next(err);
   }
 });
 
@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
     ]);
     res.status(201).json({ message: "Nama Berhasil Ditambahkan" });
   } catch (err) {
-    res.status(500).json(err.message);
+    next(err);
   }
 });
 
@@ -35,7 +35,7 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json(err.message);
   }
 
-  res.json({ message: "User berhasil dihapus" });
+  next(err);
 });
 
 router.put("/:id", async (req, res) => {
@@ -50,7 +50,7 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ message: "ID tidak ditemukan" });
     res.json({ message: "Data sudah diupdate" });
   } catch (err) {
-    res.status(500).json(err.message);
+    next(err);
   }
 });
 module.exports = router;
