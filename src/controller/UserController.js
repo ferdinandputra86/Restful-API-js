@@ -1,5 +1,7 @@
 const db = require("../db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { use } = require("react");
 
 exports.getUser = async (req, res, next) => {
   try {
@@ -102,12 +104,18 @@ exports.userLogin = async (req, res, next) => {
 
     if (!match) return res.status(401).json({ message: "password salah" });
 
-    res.status(200).json({
-      message: "Login berhasil",
-      user: {
+    const token = jwt.sign(
+      {
         id: user.id,
         email: user.email,
       },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({
+      message: "Berhasil Login",
+      token,
     });
   } catch (err) {
     next(err);

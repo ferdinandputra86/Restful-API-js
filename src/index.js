@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const errorhandler = require("./middleware/errorHandler");
+require("dotenv").config();
 
 app.use(express.json());
 
@@ -9,8 +10,6 @@ app.use("/users", userRoute);
 
 const userAuth = require("./router/auth");
 app.use("/auth", userAuth);
-
-
 
 app.listen(3000, () => {
   console.log("Server jalan di port 3000");
